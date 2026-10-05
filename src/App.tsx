@@ -105,11 +105,12 @@ export const App: React.FC = () => {
     (r) => r.id === simulationEngine.selectedRequestId
   ) || null;
 
+  if (!isAuthenticated) {
+    return <LockScreen onUnlock={() => setIsAuthenticated(true)} />;
+  }
+
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-[#08090f] select-none font-sans">
-      {!isAuthenticated && (
-        <LockScreen onUnlock={() => setIsAuthenticated(true)} />
-      )}
 
       {/* 1. Header Toolbar */}
       <Header
