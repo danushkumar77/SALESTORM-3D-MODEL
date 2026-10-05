@@ -9,6 +9,7 @@ import { RequestInspectorModal } from './components/ui/RequestInspectorModal';
 import { NodeDetailsModal } from './components/ui/NodeDetailsModal';
 import { CameraControlsBar } from './components/ui/CameraControlsBar';
 import { EventLogDrawer } from './components/ui/EventLogDrawer';
+import { LockScreen } from './components/ui/LockScreen';
 import type { 
   CameraViewPreset, 
   ScenarioPreset, 
@@ -16,6 +17,10 @@ import type {
 } from './types/simulation';
 
 export const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return sessionStorage.getItem('salestorm_auth') === 'granted' ||
+           localStorage.getItem('salestorm_auth') === 'granted';
+  });
   const [, setTick] = useState(0);
   const [cameraPreset, setCameraPreset] = useState<CameraViewPreset>('OVERVIEW');
   const [isTrackingRequest, setIsTrackingRequest] = useState(false);
@@ -25,6 +30,7 @@ export const App: React.FC = () => {
   // Animation frame loop
   const lastTimeRef = useRef<number>(0);
   useEffect(() => {
+    if (!isAuthenticated) return;
     lastTimeRef.current = performance.now();
     let animId: number;
 
@@ -40,7 +46,7 @@ export const App: React.FC = () => {
 
     animId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(animId);
-  }, []);
+  }, [isAuthenticated]);
 
   // Listen to engine state updates
   useEffect(() => {
@@ -89,12 +95,22 @@ export const App: React.FC = () => {
     setSelectedNodeId(nodeId);
   };
 
+  const handleLock = () => {
+    sessionStorage.removeItem('salestorm_auth');
+    localStorage.removeItem('salestorm_auth');
+    setIsAuthenticated(false);
+  };
+
   const selectedRequest = simulationEngine.requests.find(
     (r) => r.id === simulationEngine.selectedRequestId
   ) || null;
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-[#08090f] select-none font-sans">
+      {!isAuthenticated && (
+        <LockScreen onUnlock={() => setIsAuthenticated(true)} />
+      )}
+
       {/* 1. Header Toolbar */}
       <Header
         isRunning={simulationEngine.isRunning}
@@ -109,6 +125,7 @@ export const App: React.FC = () => {
         onSetTrafficMode={handleSetTrafficMode}
         isMuted={isMuted}
         onToggleMute={handleToggleMute}
+        onLock={handleLock}
       />
 
       {/* 2. Real-time Telemetry Metrics HUD */}

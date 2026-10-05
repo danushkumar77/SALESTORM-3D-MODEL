@@ -7,7 +7,8 @@ import {
   VolumeX, 
   Activity, 
   Zap, 
-  Maximize2 
+  Maximize2,
+  Lock
 } from 'lucide-react';
 import type { TrafficMode } from '../../types/simulation';
 
@@ -24,6 +25,7 @@ interface HeaderProps {
   onSetTrafficMode: (mode: TrafficMode) => void;
   isMuted: boolean;
   onToggleMute: () => void;
+  onLock: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -39,6 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSetTrafficMode,
   isMuted,
   onToggleMute,
+  onLock,
 }) => {
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
@@ -175,6 +178,15 @@ export const Header: React.FC<HeaderProps> = ({
             className="p-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white rounded-lg transition-all cursor-pointer"
           >
             {isMuted ? <VolumeX className="w-3.5 h-3.5 text-slate-500" /> : <Volume2 className="w-3.5 h-3.5 text-cyan-400" />}
+          </button>
+
+          {/* Lock Screen */}
+          <button
+            onClick={onLock}
+            title="Lock Console"
+            className="p-1.5 bg-slate-900 hover:bg-rose-950/40 border border-slate-800 hover:border-rose-500/40 text-slate-400 hover:text-rose-400 rounded-lg transition-all cursor-pointer"
+          >
+            <Lock className="w-3.5 h-3.5" />
           </button>
 
           {/* Fullscreen */}
